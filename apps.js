@@ -32,8 +32,8 @@ var players = {};
 var apple = {
 			color: "apple",
 			parts: [{
-					x: '849.2294231709093',
-					y: '574.4140890575945'
+					x: getRandomArbitary(20,780),
+					y: getRandomArbitary(20,580)
 				}]
 		};
 
@@ -102,4 +102,8 @@ io.sockets.on('connection', function (socket) {
 		
 		
 	});
-}); 
+});
+
+function getRandomArbitary (min, max) {
+    return Math.random() * (max - min) + min;
+}
