@@ -17,7 +17,7 @@ var players = {};
 		$("#connecting").hide();
 		$("#gameBoard").show();
 		clearInterval(movementInterval);
-		//movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
+		movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
 		
 	});
 
@@ -72,19 +72,27 @@ function renderPlayer(player)
 {
 	if (player != 'apple')
 	{
+		var classADD = "";
+
+		if (playersColor == players[player].color)
+			classADD = "player-yours";
+
 		$('.player-'+  players[player].color).remove();
-		$("#gameBoard").append('<div class="player player-'+  players[player].color + '" />');
+		$("#gameBoard").append('<span class="player player-'+  players[player].color + ' '+ classADD+'" />');
 	}
 	for (var part in players[player].parts)
 	{
 		if (player == 'apple')
 		{
-																	
-			$("#gameBoard").append('<div class="apple" style="top: '+ players[player].parts[part].y +'; left: '+ players[player].parts[part].x +';">');
+			$('.apple-part-'+ part).remove();
+			$("#gameBoard").append('<span class="apple apple-part-'+ part +'" style="top: '+ players[player].parts[part].y +'; left: '+ players[player].parts[part].x +';">');
 		} else {
 			var partDirection = players[player].parts[part].direction;
+
 			if (part ==  (players[player].parts.length - 1))
 				partDirection = players[player].parts[(part - 1 )].direction;
+
+			
 			$(".player-" + players[player].color).append('<span class="player-part direction-'+ partDirection +'" style="background-color: '+players[player].color +';  top: '+ players[player].parts[part].y +'px; left: '+ players[player].parts[part].x +'px;" />');
 		}
 		
@@ -247,6 +255,9 @@ function endGame()
 }
 
 function moveAllPlayers(){
+	/* 
+		moveAllPLayers and update player are cofliting and making movement weard.
+		so for now just use updatep player and only move your self
 	for (var player in players)
 		{
 			if (player != 'apple')
@@ -254,6 +265,8 @@ function moveAllPlayers(){
 				movePlayer(players[player].parts[0].direction, players[player]);
 			}
 		}
+	*/
+	movePlayer(players[playersColor].parts[0].direction, players[playersColor]);
 }
 
 function movePlayer(direction, player)
@@ -387,15 +400,22 @@ function checkapples(player)
 		var maxY = $("#gameBoard").height() - appleSize;
         var maxX = $("#gameBoard").width() - appleSize;
 
-        var players = $(".player-part","#gameBoard");
+        var playersParts = $(".player-part","#gameBoard");
+        var x;
+        var y;
 
         do
          {
-			var y = getRandomArbitary(appleSize, maxY);
-			var x = getRandomArbitary(appleSize, maxX);
+			y = getRandomArbitary(appleSize, maxY);
+			x = getRandomArbitary(appleSize, maxX);
 			$(".apple","#gameBoard").offset({ left: x  , top: y });
 		}
-		while (findIntersectors(players, $(".apple","#gameBoard")).length !== 0);
+		while (findIntersectors(playersParts, $(".apple","#gameBoard")).length !== 0);
+		
+		players.apple.parts[0].x = x;
+		players.apple.parts[0].y = y;
+
+		socket.emit('updatePlayer', players.apple);
 	}
 }
 

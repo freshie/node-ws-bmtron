@@ -25,9 +25,14 @@
 }
 .player
 {
-	position: absolute;;
+	position: absolute;
+	z-index: 1;
 }
 
+.player-yours
+{
+	z-index: 2;
+}
 .player-part
 {
     

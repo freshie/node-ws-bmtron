@@ -30,7 +30,7 @@ app.get('/resources/:sub/:sub2/:file', function(req, res){
 var players = {};
 
 var apple = {
-			color: "red",
+			color: "apple",
 			parts: [{
 					x: '849.2294231709093',
 					y: '574.4140890575945'
@@ -80,7 +80,7 @@ io.sockets.on('connection', function (socket) {
 		
 		socket.emit('getAllPlayers', players);
 		
-		socket.broadcast.emit('playerAdded', player);
+		socket.broadcast.emit('playerUpdate', player);
 	});
 
 	socket.on('updatePlayer', function(player){
