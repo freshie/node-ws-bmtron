@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/resources/styles/main.css">
+		<title>BMTron</title>
+	</head>
+	<body>
+		
+		<div id="connecting" style="padding: 150px; font-size: 24px;">
+			<span id="spinner" /> <span id='spinner-text'>Connecting...</text>
+		</div>
+		<div id='settings' style="display: none;">
+			<select id='color-picker'>
+				<option value="">Pick a color</option>
+			</select>
+			
+			<span class='player-settings'> 
+				<span class='player-part direction-left'>
+					<span class='player-eyes'>
+						<span class='player-eye player-eye-left'></span>
+						<span class='player-eye player-eye-right'></span>
+					</span>
+				</span>
+				<span class='player-part direction-left'></span>
+				<span class='player-part direction-left'></span>
+			</span>
+			<br />
+			<a id='start' href="#start">Start Game</a>
+	    </div>
+		<div id="gameBoard" style="display: none;">
+
+			
+		<div>
+
+		
+		<script src="/resources/scripts/jquery-1.8.2.min.js"></script>
+		<script src="/resources/scripts/colorArray.js"></script>
+		<script src="/resources/scripts/socket.io.min.js"></script>
+		<script src="/resources/scripts/spin.min.js"></script>
+		<script src="/resources/scripts/rgbcolor.js"></script>
+		<script src="/resources/scripts/main.js"></script>
+	</body>
+</html>
