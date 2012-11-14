@@ -94,9 +94,12 @@ io.sockets.on('connection', function (socket) {
 
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function(){
+		if (socket.hasOwnProperty("player"))
+		{
+			delete players[socket.player.color];
+			socket.broadcast.emit('playerRemove', socket.player.color);
+		}
 		
-		delete players[socket.player.color];
 		
-		socket.broadcast.emit('playerRemove', socket.player.color);
 	});
-});
+}); 
