@@ -41,10 +41,9 @@
     min-height: 16;
     min-width: 16;
     display: inline-block;
-    margin: -2px;
     border: 1px solid;
     border: 1px dotted black;
-    position: absolute;;
+    position: absolute;
 }
 
 .direction-right.player-part:first-child

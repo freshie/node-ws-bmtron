@@ -44,32 +44,35 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.on('addPlayer', function(color){
 		
+		var x = getRandomArbitary(40,760);
+		var y = getRandomArbitary(40,560);
+
 		player = {
 			color: color,
 			parts: [
 				{
-					x: 400,
-					y: 216,
+					x: x,
+					y: y,
 					direction: 'left',
 					lastDirection: 'left',
-					lastX: 418,
-					lastY: 216
+					lastX: (x - 18),
+					lastY: y
 				},
 				{
-					x: 418,
-					y: 216,
+					x: (x + 18),
+					y: y,
 					direction: 'left',
 					lastDirection: 'left',
-					lastX: 436,
-					lastY: 223
+					lastX: (x + 36),
+					lastY: y
 				},
 				{
-					x: 436,
-					y: 216,
+					x: (x + 36),
+					y: y,
 					direction: 'left',
 					lastDirection: 'left',
-					lastX: 454,
-					lastY: 223
+					lastX: (x + 54),
+					lastY: y
 				}
 			]
 		};

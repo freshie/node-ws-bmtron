@@ -287,7 +287,7 @@ function movePlayer(direction, player)
 			var x = player.parts[part].x;
 			var y = player.parts[part].y;
 
-			playerSize = playerSize + 2;
+			playerSize = playerSize + 3;
 			//deturms the new cords
 			if (direction == "right")
 				x = x + playerSize;
