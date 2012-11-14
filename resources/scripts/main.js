@@ -17,7 +17,7 @@ var players = {};
 		$("#connecting").hide();
 		$("#gameBoard").show();
 		clearInterval(movementInterval);
-		movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
+		//movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
 		
 	});
 
@@ -82,7 +82,10 @@ function renderPlayer(player)
 																	
 			$("#gameBoard").append('<div class="apple" style="top: '+ players[player].parts[part].y +'; left: '+ players[player].parts[part].x +';">');
 		} else {
-			$(".player-" + players[player].color).append('<span class="player-part direction-'+ players[player].parts[part].direction +'" style="background-color: '+players[player].color +'; position: relative; top: '+ players[player].parts[part].y +'px; left: '+ players[player].parts[part].x +'px;" />');
+			var partDirection = players[player].parts[part].direction;
+			if (part ==  (players[player].parts.length - 1))
+				partDirection = players[player].parts[(part - 1 )].direction;
+			$(".player-" + players[player].color).append('<span class="player-part direction-'+ partDirection +'" style="background-color: '+players[player].color +';  top: '+ players[player].parts[part].y +'px; left: '+ players[player].parts[part].x +'px;" />');
 		}
 		
 	}
