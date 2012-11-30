@@ -1,6 +1,22 @@
 var app = require('express').createServer();
 var io = require('socket.io').listen(app);
 var http = require('http');
+var os = require('os');
+
+
+//gets Ip address
+var interfaces = os.networkInterfaces();
+var addresses = [];
+for (k in interfaces) {
+    for (k2 in interfaces[k]) {
+        var address = interfaces[k][k2];
+        if (address.family == 'IPv4' && !address.internal && k != "VirtualBox Host-Only Network") {
+        	addresses.push(address.address);
+        }
+    }
+}
+
+
 app.listen(8083);
 
 // routing
@@ -9,9 +25,15 @@ app.get('/', function (req, res) {
 });
 
 
+
+
+app.get('/server/getIP', function(req, res){
+	res.send("var serverIP = '" +addresses[0] +"';");
+});
+
 app.get('/resources/:sub/:file', function(req, res){
-  var sub = req.params.sub
-    , file = req.params.file;
+	var sub = req.params.sub
+	, file = req.params.file;
  
   res.sendfile(__dirname + '/resources/' + sub + '/' + file);
    

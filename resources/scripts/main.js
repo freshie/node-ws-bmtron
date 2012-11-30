@@ -1,4 +1,4 @@
-var socket = io.connect(window.location.host);
+var socket = io.connect(serverIP + ':' + window.location.port);
 var movementInterval = setInterval(function() {  }, 2500000);
 
 var playersColor = "";
