@@ -301,19 +301,23 @@ function movePlayer(direction, player)
 			partSelector.offset({ left: x  , top: y });
 			partSelector.attr('class', "player-part direction-"+ direction);
 			var notFirst = $(".player-part:not(:first)", playerSelecter);
- 
+ 			var first = $(".player-part:first", playerSelecter);
 			// checks to see if it will run into its self
+
 			var gamebox = findIntersectors(partSelector, $('#gameBoard'));
 
 			// checks to see if it will run into its self
-			var intersectors = findIntersectors(partSelector, notFirst);
+			// checks to see if it will run into others
+			var playersParts = $(".player-part","#gameBoard");
+			var intersectors = findIntersectors(first, playersParts );
 
 			//checks to make sure they cant back up into them selfs
 			var didBackInToSelf = backInToSelf(player.parts[part].direction, direction);
 			
 			
+			
 
-			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length !== 0 || didBackInToSelf))
+			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length > 2 || didBackInToSelf))
 			{
 				partSelector.offset({ left: player.parts[part].LastX, top: player.parts[part].LastY });
 				endGame();
