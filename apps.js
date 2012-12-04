@@ -117,8 +117,8 @@ function getRandomArbitary (min, max) {
 
 function spawnRandomly(color)
 {
-	var x = getRandomArbitary(100,map.maxX);
-	var y = getRandomArbitary(100,map.maxY);
+	var x = getRandomArbitary(100,map.maxX - 20);
+	var y = getRandomArbitary(100,map.maxY - 20);
 	var directions = ['left','right','up','down'];
 	var direction = directions[0];
 	player = {
@@ -127,26 +127,17 @@ function spawnRandomly(color)
 			{
 				x: x,
 				y: y,
-				direction: direction,
-				lastDirection: 'left',
-				lastX: (x - 18),
-				lastY: y
+				direction: direction
 			},
 			{
 				x: (x + 18),
 				y: y,
-				direction: direction,
-				lastDirection: 'left',
-				lastX: (x + 36),
-				lastY: y
+				direction: direction
 			},
 			{
 				x: (x + 36),
 				y: y,
-				direction: direction,
-				lastDirection: 'left',
-				lastX: (x + 54),
-				lastY: y
+				direction: direction
 			}
 		]
 	};

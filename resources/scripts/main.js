@@ -286,10 +286,9 @@ function movePlayer(direction, player)
 	
 	var playerSelecter = $(".player-" + player.color);
 
-	for (var part in player.parts)
+	for (var part = (player.parts.length - 1); part >= 0; part--)
 	{
-
-		if(part == '0')
+		if(part === 0)
 		{
 			var partSelector = $(".player-part:eq("+part+")", playerSelecter);
 			var playerSize = partSelector.css("min-height");
@@ -331,7 +330,7 @@ function movePlayer(direction, player)
 
 			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length > 2 || didBackInToSelf))
 			{
-				partSelector.offset({ left: player.parts[part].LastX, top: player.parts[part].LastY });
+				
 				endGame();
 				clearInterval(movementInterval);
 				break;
@@ -340,10 +339,7 @@ function movePlayer(direction, player)
 			player.parts[part] = {
 			x: x,
 			y: y,
-			direction: direction,
-			lastDirection: player.parts[part].direction,
-			lastX: player.parts[part].x,
-			lastY: player.parts[part].y
+			direction: direction
 			};
 		}
 		else
@@ -352,6 +348,10 @@ function movePlayer(direction, player)
 		}
 
 	}
+
+	//for classes & looks
+	partSelector = $(".player-part:eq("+(player.parts.length - 1)+")", playerSelecter);
+	partSelector.attr('class', "player-part direction-"+player.parts[(player.parts.length - 2)].direction);
 
 	checkapples(player);
 	
@@ -367,26 +367,19 @@ function movePart(part, player)
 	var partSelector = $(".player-part:eq("+part+")", playerSelecter);
 	var prevPart = (parseInt(part, "") - 1);
 	
-	var x = player.parts[prevPart].lastX;
-	var y = player.parts[prevPart].lastY;
-	var direction = player.parts[prevPart].lastDirection;
+	var x = player.parts[prevPart].x;
+	var y = player.parts[prevPart].y;
+	var direction = player.parts[prevPart].direction;
 
 	partSelector.offset({ left: x, top: y });
 
 	
-	//for classes & looks
-	if (player.parts.length == (parseInt(part,"") + 1))
-		partSelector.attr('class', "player-part direction-"+player.parts[prevPart].direction);
-	else
-		partSelector.attr('class', "player-part direction-"+ player.parts[prevPart].lastDirection);
+	partSelector.attr('class', "player-part direction-"+ player.parts[prevPart].direction);
 
 	player.parts[part] = {
 		x: x,
 		y: y,
-		direction: direction,
-		lastDirection: player.parts[part].direction,
-		lastX: player.parts[part].x,
-		lastY: player.parts[part].y
+		direction: direction
 	};
 }
  
