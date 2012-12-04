@@ -432,9 +432,11 @@ function checkapples(player)
 	var playerSelecter = $(".player-" + player.color);
 	var partFirstSelector = $(".player-part:first", playerSelecter);
 	var eat = findIntersectors(partFirstSelector, $(".apple","#gameBoard"));
+	
 
     if (eat.length !== 0)
     {
+    	
         $(".player-part:last", playerSelecter).clone().appendTo(playerSelecter,"#gameBoard");
 		
 		var partCount = player.parts.length;
@@ -455,14 +457,17 @@ function checkapples(player)
         var playersParts = $(".player-part","#gameBoard");
         var x;
         var y;
-
+        var breakWhile = true;
         do
          {
 			y = getRandomArbitary(appleSize, maxY);
 			x = getRandomArbitary(appleSize, maxX);
 			$(".apple","#gameBoard").offset({ left: x  , top: y });
+
+			if (findIntersectors(playersParts, $(".apple","#gameBoard")).length == 0 && findIntersectors($('.gamepart','#gameBoard'), $(".apple","#gameBoard")).length == 0)
+		 		breakWhile = false;
 		}
-		while (findIntersectors(playersParts, $(".apple","#gameBoard")).length !== 0);
+		while (breakWhile);
 		
 		players.apple.parts[0].x = x;
 		players.apple.parts[0].y = y;
