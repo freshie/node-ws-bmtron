@@ -52,7 +52,25 @@ app.get('/resources/:sub/:sub2/:file', function(req, res){
 var players = {};
 var map = {
 			maxX: 1024,
-			maxY: 768
+			maxY: 768,
+			parts: [{
+						x: 350,
+						y: 500,
+						width: 400,
+						height: 20
+					},
+					{
+						x: 350,
+						y: 300,
+						width: 20,
+						height: 200
+					},
+					{
+						x: 730,
+						y: 300,
+						width: 20,
+						height: 200
+					}]
 		   };
 var apple = {
 			color: "apple",

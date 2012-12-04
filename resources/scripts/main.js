@@ -26,6 +26,11 @@ var map = {};
 			$('#gameBoard').width(map.maxX);
 			$('#gameBoard').height(map.maxY);
 
+			for (var part in map.parts)
+			{
+				$("#gameBoard").append('<span class="gamepart" style="top: '+ map.parts[part].y +'px; left: '+ map.parts[part].x +'px; width: '+ map.parts[part].width +'px; height: '+ map.parts[part].height +'px;" />');
+			}
+
 			$("#connecting").hide();
 			$("#gameBoard").show();
 			movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
@@ -49,7 +54,7 @@ var map = {};
 			players[InPlayer.color] = InPlayer;
 
 			renderPlayer(InPlayer.color);
-			
+
 			movementInterval = setInterval(function() { moveAllPlayers(); }, 250); 
 		}
 		
@@ -361,10 +366,12 @@ function movePlayer(direction, player)
 			//checks to make sure they cant back up into them selfs
 			var didBackInToSelf = backInToSelf(player.parts[part].direction, direction);
 			
+			//checks map
+			var didRunIntoMapPart = findIntersectors(first, $('.gamepart','#gameBoard') );
 			
 			
 
-			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length > 2 || didBackInToSelf))
+			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length > 2 || didBackInToSelf || didRunIntoMapPart.length !== 0))
 			{
 				
 				endGame();
