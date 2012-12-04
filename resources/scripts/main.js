@@ -16,6 +16,8 @@ var map = {};
 		renderAllPlayers();
         
         updateMap();
+
+        renderScoreBoard();
 	});
 
 	socket.on('mapUpdate', function (InMap) {
@@ -44,8 +46,9 @@ var map = {};
 			players[InPlayer.color] = InPlayer;
 
 			renderPlayer(InPlayer.color);
+			renderScoreBoard();
 		}
-		
+			
 	});
 
 	socket.on('playerRespawn', function (InPlayer) {
@@ -56,8 +59,9 @@ var map = {};
 			renderPlayer(InPlayer.color);
 
 			movementInterval = setInterval(function() { moveAllPlayers(); }, 250); 
+			renderScoreBoard();
 		}
-		
+			
 	});
 
 	
@@ -104,13 +108,41 @@ function updateMap()
 
 	$("#spinner-text").html("loading map...");
 	$("#gameBoard").hide();
+	$("#scoreBoard").hide();
 	$("#connecting").show();
 	
 	socket.emit('getMap'); 
 }
 
+function renderScoreBoard()
+{
+	function compare(a,b) {
+		if (a.parts.length < b.parts.length)
+		 return 1;
+		if (a.parts.length > b.parts.length)
+			return -1;
+
+		return 0;
+	}
+
+	var ScoaredPlayers = $.map(players, function (value, key) { return value; });
+	ScoaredPlayers.sort(compare);
+
+	html = "<h1>Players:</h1> <ul>";
+
+	for (var player in ScoaredPlayers)
+	{
+		if (ScoaredPlayers[player].color != 'apple')
+		html = html + '<li class="">'+ ScoaredPlayers[player].color +': '+ ScoaredPlayers[player].parts.length +'</li>';
+	}
+		html = html + "</ul>";
+	$('#scoreBoard').html(html);
+	$('#scoreBoard').show();
+}
+
 function renderPlayer(player)
 {
+
 	if (player != 'apple')
 	{
 		var classADD = "";
@@ -175,6 +207,8 @@ function showSettings()
 	$("#settings").show();
 	$("#gameBoard").hide();
 	$("#connecting").hide();
+	$("#scoreBoard").hide();
+	
 }
 
 function startGame()
@@ -472,6 +506,7 @@ function checkapples(player)
 		players.apple.parts[0].x = x;
 		players.apple.parts[0].y = y;
 
+		renderScoreBoard();
 		socket.emit('updatePlayer', players.apple);
 	}
 }

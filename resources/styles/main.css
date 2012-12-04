@@ -1,9 +1,14 @@
 #gameBoard
 {
-	
+	float: left;
 	position: relative;
 	border: 1px double black;
 	overflow: hidden;
+}
+#scoreBoard
+{
+	float: right;
+	position: relative;
 }
 .gamepart
 {
