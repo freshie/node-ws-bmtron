@@ -48,9 +48,12 @@ app.get('/resources/:sub/:sub2/:file', function(req, res){
    
 });
 
-// chat data
+// game data
 var players = {};
-
+var map = {
+			maxX: 1040,
+			maxY: 758
+		   };
 var apple = {
 			color: "apple",
 			parts: [{
@@ -66,63 +69,42 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.on('addPlayer', function(color){
 		
-		var x = getRandomArbitary(40,760);
-		var y = getRandomArbitary(40,560);
+		player = spawnRandomly(color);
 
-		player = {
-			color: color,
-			parts: [
-				{
-					x: x,
-					y: y,
-					direction: 'left',
-					lastDirection: 'left',
-					lastX: (x - 18),
-					lastY: y
-				},
-				{
-					x: (x + 18),
-					y: y,
-					direction: 'left',
-					lastDirection: 'left',
-					lastX: (x + 36),
-					lastY: y
-				},
-				{
-					x: (x + 36),
-					y: y,
-					direction: 'left',
-					lastDirection: 'left',
-					lastX: (x + 54),
-					lastY: y
-				}
-			]
-		};
-
-		socket.player = player;
+		socket.color = color;
 		
 		players[player.color] = player;
 		
 		socket.emit('getAllPlayers', players);
 		
-		socket.broadcast.emit('playerUpdate', player);
+		socket.volatile.broadcast.emit('playerUpdate', player);
 	});
 
 	socket.on('updatePlayer', function(player){
 		
+		players[player.color] = player;
 		
+		socket.volatile.broadcast.emit('playerUpdate', player);
+	});
+
+	socket.on('respawnPlayer', function(color){
+		
+		player = spawnRandomly(color);
+
+		socket.color = color;
 		
 		players[player.color] = player;
 		
-		socket.broadcast.emit('playerUpdate', player);
+		socket.volatile.broadcast.emit('playerUpdate', player);
+		socket.volatile.emit('playerUpdate', player);
 	});
 
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function(){
-		if (socket.hasOwnProperty("player"))
+		if (socket.hasOwnProperty("color"))
 		{
-			delete players[socket.player.color];
-			socket.broadcast.emit('playerRemove', socket.player.color);
+			delete players[socket.color];
+			socket.broadcast.emit('playerRemove', socket.color);
 		}
 		
 		
@@ -131,4 +113,43 @@ io.sockets.on('connection', function (socket) {
 
 function getRandomArbitary (min, max) {
     return Math.random() * (max - min) + min;
+}
+
+function spawnRandomly(color)
+{
+	var x = getRandomArbitary(100,map.maxX);
+	var y = getRandomArbitary(100,map.maxY);
+	var directions = ['left','right','up','down'];
+	var direction = directions[0];
+	player = {
+		color: color,
+		parts: [
+			{
+				x: x,
+				y: y,
+				direction: direction,
+				lastDirection: 'left',
+				lastX: (x - 18),
+				lastY: y
+			},
+			{
+				x: (x + 18),
+				y: y,
+				direction: direction,
+				lastDirection: 'left',
+				lastX: (x + 36),
+				lastY: y
+			},
+			{
+				x: (x + 36),
+				y: y,
+				direction: direction,
+				lastDirection: 'left',
+				lastX: (x + 54),
+				lastY: y
+			}
+		]
+	};
+
+	return player;
 }

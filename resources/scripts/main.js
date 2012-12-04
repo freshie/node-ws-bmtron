@@ -245,13 +245,25 @@ function copyGameBoard()
 
 function newGame()
 {
-	//$("#gameBoard").html($("#cashe").html());
+	socket.emit('respawnPlayer', playersColor); 
+	movementInterval = setInterval(function() { moveAllPlayers(); }, 250); 
 }
 
 function endGame()
 {
-	alert("You lost");
-	newGame();
+	
+        $( "#respawn" ).dialog({
+            modal: true,
+            closeOnEscape: false,
+            buttons: 
+            	[{ 
+            		text: "Yes", 
+            		click: function() {  newGame(); $( this ).dialog( "close" );   }
+ 
+        		} ]
+        });
+  
+	
 }
 
 function moveAllPlayers(){
