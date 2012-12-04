@@ -51,14 +51,14 @@ app.get('/resources/:sub/:sub2/:file', function(req, res){
 // game data
 var players = {};
 var map = {
-			maxX: 1040,
-			maxY: 758
+			maxX: 1024,
+			maxY: 768
 		   };
 var apple = {
 			color: "apple",
 			parts: [{
-					x: getRandomArbitary(20,780),
-					y: getRandomArbitary(20,580)
+					x: getRandomArbitary(20,map.maxX),
+					y: getRandomArbitary(20,map.maxY)
 				}]
 		};
 
@@ -66,6 +66,10 @@ players["apple"] = apple;
 
 io.sockets.on('connection', function (socket) {
 
+	socket.on('getMap', function(){
+		
+		socket.emit('mapUpdate', map);
+	});
 	
 	socket.on('addPlayer', function(color){
 		
@@ -96,7 +100,7 @@ io.sockets.on('connection', function (socket) {
 		players[player.color] = player;
 		
 		socket.volatile.broadcast.emit('playerUpdate', player);
-		socket.volatile.emit('playerUpdate', player);
+		socket.volatile.emit('playerRespawn', player);
 	});
 
 	// when the user disconnects.. perform this

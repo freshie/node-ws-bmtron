@@ -3,6 +3,7 @@ var movementInterval = setInterval(function() {  }, 2500000);
 
 var playersColor = "";
 var players = {};
+var map = {};
 	// on connection to server, ask for user's name with an anonymous callback
 	socket.on('connect', function(){
 		showSettings();
@@ -13,11 +14,22 @@ var players = {};
 		players = InPlayers;
 
 		renderAllPlayers();
+        
+        updateMap();
+	});
 
-		$("#connecting").hide();
-		$("#gameBoard").show();
-		clearInterval(movementInterval);
-		movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
+	socket.on('mapUpdate', function (InMap) {
+		if (playersColor !== "")
+		{
+			map = InMap;
+
+			$('#gameBoard').width(map.maxX);
+			$('#gameBoard').height(map.maxY);
+
+			$("#connecting").hide();
+			$("#gameBoard").show();
+			movementInterval = setInterval(function() { moveAllPlayers(); }, 250);
+		}
 		
 	});
 
@@ -30,6 +42,19 @@ var players = {};
 		}
 		
 	});
+
+	socket.on('playerRespawn', function (InPlayer) {
+		if (playersColor !== "")
+		{
+			players[InPlayer.color] = InPlayer;
+
+			renderPlayer(InPlayer.color);
+			
+			movementInterval = setInterval(function() { moveAllPlayers(); }, 250); 
+		}
+		
+	});
+
 	
 // on load of page
 $(document).ready(function() {
@@ -67,6 +92,17 @@ $(document).ready(function() {
 });
 
 populateColorPicker();
+
+function updateMap()
+{
+	clearInterval(movementInterval);
+
+	$("#spinner-text").html("loading map...");
+	$("#gameBoard").hide();
+	$("#connecting").show();
+	
+	socket.emit('getMap'); 
+}
 
 function renderPlayer(player)
 {
@@ -246,7 +282,7 @@ function copyGameBoard()
 function newGame()
 {
 	socket.emit('respawnPlayer', playersColor); 
-	movementInterval = setInterval(function() { moveAllPlayers(); }, 250); 
+	
 }
 
 function endGame()
