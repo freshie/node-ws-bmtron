@@ -4,6 +4,7 @@ var movementInterval = setInterval(function() {  }, 2500000);
 var playersColor = "";
 var players = {};
 var map = {};
+var that;
 	// on connection to server, ask for user's name with an anonymous callback
 	socket.on('connect', function(){
 		showSettings();
@@ -435,7 +436,13 @@ function movePlayer(direction, player)
 		}
 		else
 		{
-			movePart(part, player);
+			//needs to use this object to make it pass by value
+			//code for this thanks to Jonathan Snook post at: http://www.snook.ca/archives/javascript/javascript_pass/
+			var partValue = new partobject(part);
+
+			objectchanger(partValue.movePart);
+		  
+		 	player.parts[part] = partValue;
 		}
 
 	}
@@ -452,26 +459,45 @@ function movePlayer(direction, player)
 	}
 }
 
-function movePart(part, player)
+//code for this thanks to Jonathan Snook post at: http://www.snook.ca/archives/javascript/javascript_pass/
+//makes objects pass by value
+function objectchanger(fnc)
 {
-	var playerSelecter = $(".player-" + player.color);
-	var partSelector = $(".player-part:eq("+part+")", playerSelecter);
-	var prevPart = (parseInt(part, "") - 1);
+	fnc(); // runs the function being passed in
+}
+
+function partobject(part)
+{
+	this.x =  players[playersColor].parts[part].x;
+	this.y =  players[playersColor].parts[part].y;
+	this.direction =  players[playersColor].parts[part].direction;
+	this.part = part;
+	that = this; // is need for the objectchanger function
+}
+
+partobject.prototype.movePart = function()
+{
+
+	var playerSelecter = $(".player-" + playersColor);
+	var partSelector = $(".player-part:eq("+that.part +")", playerSelecter);
+	var prevPart = (parseInt(that.part , "") - 1);
 	
-	var x = player.parts[prevPart].x;
-	var y = player.parts[prevPart].y;
-	var direction = player.parts[prevPart].direction;
+	
+	var x = players[playersColor].parts[prevPart].x;
+	var y = players[playersColor].parts[prevPart].y;
+	var NewDirection = players[playersColor].parts[prevPart].direction;
 
 	partSelector.offset({ left: x, top: y });
 
 	
-	partSelector.attr('class', "player-part direction-"+ player.parts[prevPart].direction);
+	partSelector.attr('class', "player-part direction-"+ players[playersColor].parts[prevPart].direction);
 
-	player.parts[part].x = x;
-	player.parts[part].y = y;
-	player.parts[part].direction = direction;
+	that.x = x;
+	that.y = y;
+	that.direction = NewDirection;
 }
- 
+
+
 //checks to see if it "eat" the apple
 function checkapples(player)
 {
@@ -502,11 +528,6 @@ function checkapples(player)
 
 		player.parts.push(lastPart);
 
-		
-		
-		
-
-		
 		//moves the apple
 		var maxY = map.height - players.apple.parts[0].height;
 		var maxX = map.width - players.apple.parts[0].width;
