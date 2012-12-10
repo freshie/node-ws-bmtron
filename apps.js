@@ -28,6 +28,7 @@ app.get('/', function (req, res) {
 
 
 app.get('/server/getIP', function(req, res){
+	//res.send("var serverIP = '23.30.54.5';");
 	res.send("var serverIP = '" +addresses[0] +"';");
 });
 
@@ -51,8 +52,10 @@ app.get('/resources/:sub/:sub2/:file', function(req, res){
 // game data
 var players = {};
 var map = {
-			maxX: 1024,
-			maxY: 768,
+			x: 0,
+			y: 0,
+			width: 1024,
+			height: 768,
 			parts: [{
 						x: 350,
 						y: 500,
@@ -75,8 +78,10 @@ var map = {
 var apple = {
 			color: "apple",
 			parts: [{
-					x: getRandomArbitary(20,map.maxX),
-					y: getRandomArbitary(20,map.maxY)
+					x: getRandomArbitary(20,map.width),
+					y: getRandomArbitary(20,map.height),
+					width: 16,
+					height: 16
 				}]
 		};
 
@@ -139,8 +144,8 @@ function getRandomArbitary (min, max) {
 
 function spawnRandomly(color)
 {
-	var x = getRandomArbitary(100,map.maxX - 20);
-	var y = getRandomArbitary(100,map.maxY - 20);
+	var x = getRandomArbitary(100,map.width - 20);
+	var y = getRandomArbitary(100,map.height - 20);
 	var directions = ['left','right','up','down'];
 	var direction = directions[0];
 	player = {
@@ -149,17 +154,23 @@ function spawnRandomly(color)
 			{
 				x: x,
 				y: y,
-				direction: direction
+				direction: direction,
+				width: 16,
+				height: 16
 			},
 			{
 				x: (x + 18),
 				y: y,
-				direction: direction
+				direction: direction,
+				width: 16,
+				height: 16
 			},
 			{
 				x: (x + 36),
 				y: y,
-				direction: direction
+				direction: direction,
+				width: 16,
+				height: 16
 			}
 		]
 	};

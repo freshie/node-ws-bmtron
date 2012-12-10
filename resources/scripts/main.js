@@ -14,10 +14,10 @@ var map = {};
 		players = InPlayers;
 
 		renderAllPlayers();
-        
-        updateMap();
+		
+		updateMap();
 
-        renderScoreBoard();
+		renderScoreBoard();
 	});
 
 	socket.on('mapUpdate', function (InMap) {
@@ -25,8 +25,8 @@ var map = {};
 		{
 			map = InMap;
 
-			$('#gameBoard').width(map.maxX);
-			$('#gameBoard').height(map.maxY);
+			$('#gameBoard').width(map.width);
+			$('#gameBoard').height(map.height);
 
 			for (var part in map.parts)
 			{
@@ -243,7 +243,7 @@ function startGame()
 		$("#spinner-text").html("loading players...");
 		$("#connecting").show();
 		
-    }
+	}
 }
 
 function changePlayerColor(color)
@@ -327,16 +327,16 @@ function newGame()
 function endGame()
 {
 	
-        $( "#respawn" ).dialog({
-            modal: true,
-            closeOnEscape: false,
-            buttons: 
-            	[{ 
-            		text: "Yes", 
-            		click: function() {  newGame(); $( this ).dialog( "close" );   }
+		$( "#respawn" ).dialog({
+			modal: true,
+			closeOnEscape: false,
+			buttons: 
+				[{ 
+					text: "Yes", 
+					click: function() {  newGame(); $( this ).dialog( "close" );   }
  
-        		} ]
-        });
+				} ]
+		});
   
 	
 }
@@ -367,8 +367,7 @@ function movePlayer(direction, player)
 		{
 			var partSelector = $(".player-part:eq("+part+")", playerSelecter);
 			var playerSize = partSelector.css("min-height");
-			playerSize = playerSize.replace("px","");
-			playerSize = parseInt(playerSize, '');
+			playerSize = player.parts[part].height;
 			
 			var x = player.parts[part].x;
 			var y = player.parts[part].y;
@@ -384,40 +383,55 @@ function movePlayer(direction, player)
 			else if (direction == "down")
 				y = y + playerSize;
 
-			partSelector.offset({ left: x  , top: y });
-			partSelector.attr('class', "player-part direction-"+ direction);
-			var notFirst = $(".player-part:not(:first)", playerSelecter);
- 			var first = $(".player-part:first", playerSelecter);
+			
+			newPlayer = player.parts[part];
+			newPlayer.x = x;
+			newPlayer.y = y;
+			newPlayer.direction = direction;
+			
 			// checks to see if it will run into its self
+			var gamebox = findIntersectors(newPlayer, map);
 
-			var gamebox = findIntersectors(partSelector, $('#gameBoard'));
-
-			// checks to see if it will run into its self
+			
 			// checks to see if it will run into others
-			var playersParts = $(".player-part","#gameBoard");
-			var intersectors = findIntersectors(first, playersParts );
+			var intersectOthers = 0;
 
-			//checks to make sure they cant back up into them selfs
-			var didBackInToSelf = backInToSelf(player.parts[part].direction, direction);
+			for (var other in players)
+			{
+				if (other.color == player.color && other.color != 'apple')
+				{
+					intersectOthers = intersectOthers +  findIntersectors(newPlayer, players[other].parts).length;
+					
+					if (intersectOthers > 0)
+						break;
+				}
+			}
+
+			// checks to see if it will run into its self
+			var intersectSelf = findIntersectors(newPlayer, player.parts );
+
+			
 			
 			//checks map
-			var didRunIntoMapPart = findIntersectors(first, $('.gamepart','#gameBoard') );
+			var didRunIntoMapPart = findIntersectors(newPlayer, map.parts);
 			
 			
 
-			if (playersColor == player.color && (gamebox.length === 0 || intersectors.length > 2 || didBackInToSelf || didRunIntoMapPart.length !== 0))
+			if (playersColor == player.color && (gamebox.length === 0 || intersectSelf.lengt > 2 || didRunIntoMapPart.length !== 0 || intersectOthers !== 0))
 			{
 				
 				endGame();
 				clearInterval(movementInterval);
 				break;
-			}
 
-			player.parts[part] = {
-			x: x,
-			y: y,
-			direction: direction
-			};
+			} else {
+
+				player.parts[part] = newPlayer;
+				
+
+				partSelector.offset({ left: x  , top: y });
+				partSelector.attr('class', "player-part direction-"+ direction);
+			}
 		}
 		else
 		{
@@ -453,58 +467,78 @@ function movePart(part, player)
 	
 	partSelector.attr('class', "player-part direction-"+ player.parts[prevPart].direction);
 
-	player.parts[part] = {
-		x: x,
-		y: y,
-		direction: direction
-	};
+	player.parts[part].x = x;
+	player.parts[part].y = y;
+	player.parts[part].direction = direction;
 }
  
 //checks to see if it "eat" the apple
 function checkapples(player)
 {
-	var playerSelecter = $(".player-" + player.color);
-	var partFirstSelector = $(".player-part:first", playerSelecter);
-	var eat = findIntersectors(partFirstSelector, $(".apple","#gameBoard"));
+	var eat = findIntersectors(player.parts[0], players.apple.parts);
 	
-
-    if (eat.length !== 0)
-    {
-    	
-        $(".player-part:last", playerSelecter).clone().appendTo(playerSelecter,"#gameBoard");
+	if (eat.length !== 0)
+	{
+		//makes the new part
+		var playerSelecter = $(".player-" + player.color);
+		$(".player-part:last", playerSelecter).clone().appendTo(playerSelecter,"#gameBoard");
 		
 		var partCount = player.parts.length;
 		var lastPart = player.parts[(partCount - 1)];
 
+		//move the new part
+
+		playerSize = lastPart.height + 3;
+
+		//deturms the new cords
+		if (lastPart.direction == "right")
+			lastPart.x = lastPart.x - playerSize;
+		else if (lastPart.direction == "left")
+			lastPart.x = lastPart.x + playerSize;
+		else if (lastPart.direction == "up")
+			lastPart.y  = lastPart.y + playerSize;
+		else if (lastPart.direction == "down")
+			lastPart.y  = lastPart.y - playerSize;
+
 		player.parts.push(lastPart);
 
-		movePart(partCount, player);
-
-		var appleSize = $(".apple","#gameBoard").css("min-height");
-
-		appleSize = appleSize.replace("px","");
-		appleSize = parseInt(appleSize, '');
-
-		var maxY = $("#gameBoard").height() - appleSize;
-        var maxX = $("#gameBoard").width() - appleSize;
-
-        var playersParts = $(".player-part","#gameBoard");
-        var x;
-        var y;
-        var breakWhile = true;
-        do
-         {
-			y = getRandomArbitary(appleSize, maxY);
-			x = getRandomArbitary(appleSize, maxX);
-			$(".apple","#gameBoard").offset({ left: x  , top: y });
-
-			if (findIntersectors(playersParts, $(".apple","#gameBoard")).length == 0 && findIntersectors($('.gamepart','#gameBoard'), $(".apple","#gameBoard")).length == 0)
-		 		breakWhile = false;
-		}
-		while (breakWhile);
 		
-		players.apple.parts[0].x = x;
-		players.apple.parts[0].y = y;
+		
+		
+
+		
+		//moves the apple
+		var maxY = map.height - players.apple.parts[0].height;
+		var maxX = map.width - players.apple.parts[0].width;
+
+		var x;
+		var y;
+
+		var intersectPlayers;
+
+		var newApply = {};
+		do
+		 {
+			newApply = players.apple.parts[0];
+			newApply.x = getRandomArbitary(players.apple.parts[0].width,maxX);
+			newApply.y = getRandomArbitary(players.apple.parts[0].height,maxY);
+							
+			
+			intersectPlayers = 0;
+			
+			for (var other in players)
+			{
+				intersectPlayers = intersectPlayers +  findIntersectors(newApply, players[other].parts).length;
+				if (intersectPlayers > 0)
+					break;
+			}
+
+			intersectMapParts = findIntersectors(newApply,map.parts);
+		}
+		while (intersectPlayers === 0 && intersectMapParts.length === 0);
+		
+		$(".apple","#gameBoard").offset({ left: newApply.x  , top: newApply.y });
+		players.apple.parts[0] = newApply;
 
 		renderScoreBoard();
 		socket.emit('updatePlayer', players.apple);
@@ -512,34 +546,38 @@ function checkapples(player)
 }
 
 function getRandomArbitary (min, max) {
-    return Math.random() * (max - min) + min;
+	return Math.random() * (max - min) + min;
 }
 
-function backInToSelf(lastDirection, direction)
-{
-	return (lastDirection == "left" && direction == "right") || (lastDirection == "right" && direction == "left") || (lastDirection == "up" && direction == "down") || (lastDirection == "down" && direction == "up");
-}
+function findIntersectors(target, intersectorsPossible) {
+	var intersectors = []
+		, t_x = [target.x, target.x + target.width]
+		, t_y = [target.y, target.y + target.height]
+		, i_x
+		, i_y;
+	if (intersectorsPossible.hasOwnProperty(length))
+	{
+		for (var intersector in intersectorsPossible)
+		{
+		  i_x = [intersectorsPossible[intersector].x, intersectorsPossible[intersector].x + intersectorsPossible[intersector].width];
+		  i_y = [intersectorsPossible[intersector].y, intersectorsPossible[intersector].y + intersectorsPossible[intersector].height];
 
-//This function will detect if any of the specified elements is overlapping a target element:
-function findIntersectors(targetSelector, intersectorsSelector) {
-    var intersectors = [];
+		  if ( t_x[0] < i_x[1] && t_x[1] > i_x[0] &&
+			   t_y[0] < i_y[1] && t_y[1] > i_y[0]) {
+			  intersectors.push(intersectorsPossible[intersector]);
+		  }
+		}
+	}
+	else
+	{
+		i_x = [intersectorsPossible.x, intersectorsPossible.x + intersectorsPossible.width];
+		i_y = [intersectorsPossible.y, intersectorsPossible.y + intersectorsPossible.height];
 
-    var $target = $(targetSelector);
-    var tAxis = $target.offset();
-    var t_x = [tAxis.left, tAxis.left + $target.outerWidth()];
-    var t_y = [tAxis.top, tAxis.top + $target.outerHeight()];
-
-    $(intersectorsSelector).each(function() {
-          var $this = $(this);
-          var thisPos = $this.offset();
-          var i_x = [thisPos.left, thisPos.left + $this.outerWidth()];
-          var i_y = [thisPos.top, thisPos.top + $this.outerHeight()];
-
-          if ( t_x[0] < i_x[1] && t_x[1] > i_x[0] &&
-               t_y[0] < i_y[1] && t_y[1] > i_y[0]) {
-              intersectors.push($this);
-          }
-
-    });
-    return intersectors;
+		  if ( t_x[0] < i_x[1] && t_x[1] > i_x[0] &&
+			   t_y[0] < i_y[1] && t_y[1] > i_y[0]) {
+			  intersectors.push(intersectorsPossible);
+		  }
+	}
+ 
+	return intersectors;
 }
